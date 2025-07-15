@@ -1,0 +1,363 @@
+{
+  "name": "FQA Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -140,
+        -60
+      ],
+      "id": "e5f9ff24-23dd-4aa6-a080-b2577abbf7e8",
+      "name": "When chat message received",
+      "webhookId": "582de80d-2718-419e-a891-00a19f75c8ce"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9b437bad-d476-4636-887d-aa2e0a83375d",
+              "name": "question",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "a15283d8-3e07-4876-a07e-b5a2b3b97f29",
+              "name": "timestamp",
+              "value": "={{ $now.format('yyyy-MM-dd') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        20,
+        -60
+      ],
+      "id": "dd057e92-cce5-4f07-b4f3-252e2ea89f37",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17YSvVgFukuBsPPBc-rtSRQKVfdrlXeJDVqjU1dyqoL0",
+          "mode": "list",
+          "cachedResultName": "FAQ bot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17YSvVgFukuBsPPBc-rtSRQKVfdrlXeJDVqjU1dyqoL0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17YSvVgFukuBsPPBc-rtSRQKVfdrlXeJDVqjU1dyqoL0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        180,
+        -60
+      ],
+      "id": "0830346e-f9a2-402d-b3bc-74702f7d0a31",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BS97YZvUXLa4UzF6",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "84dd457c-2d3b-4576-9d94-8abb33aa567e",
+              "leftValue": "={{ $('Edit Fields').item.json.question.toLowerCase().trim()  }}",
+              "rightValue": "={{ $json.Question.toLowerCase().trim()  }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        380,
+        80
+      ],
+      "id": "606df8cc-a2c1-42ed-a77e-87b90220dfdf",
+      "name": "Partial Match"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "05b07088-df8d-49dd-85db-f30299b541e6",
+              "leftValue": "={{ $('Edit Fields').item.json.question.toLowerCase().trim() }}",
+              "rightValue": "={{ $json.Question.toLowerCase().trim()  }}",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        380,
+        -200
+      ],
+      "id": "ca952df0-141b-4232-bc9f-fb5f1ae2d1fa",
+      "name": "Match"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        560,
+        -40
+      ],
+      "id": "b0191441-86ab-49ba-8825-ae2f9498ae9c",
+      "name": "Merge",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5c400986-f1b1-4c2c-aeca-d4a7be9fc8ab",
+              "leftValue": "={{ $json.Answer }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        -40
+      ],
+      "id": "58bbcc3b-73e1-4e8f-be59-dbeb3eabe215",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3e78d253-b179-422f-ae99-d2c29bd226a1",
+              "name": "output",
+              "value": "I don't have the answers. You can contact support via email at support@example.com or call us at +8801XXXXXXXXX.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1020,
+        20
+      ],
+      "id": "8f59c11c-1877-4e75-8873-71ae9d4b17e4",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "aee7be08-fb63-4daa-8928-3c8ccb4d6fa2",
+              "name": "output",
+              "value": "={{ $json.Answer }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1020,
+        -140
+      ],
+      "id": "ba81cfc5-6347-4e6b-ab7b-b1c86db4792d",
+      "name": "Edit Fields2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Match",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Partial Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Partial Match": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Match": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "68c4d2bd-a745-4c3a-aeda-221cf3cfffda",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33401c5fe28aaa2ad810bfe3cd8ae3968aeb9023bb7c73ae0c91bc27471fdf7a"
+  },
+  "id": "wIIFWryLkeXGA8XT",
+  "tags": [
+    {
+      "name": "ostad_batch_2",
+      "id": "cItb72oNUHuf9VMp",
+      "createdAt": "2025-07-15T08:12:31.914Z",
+      "updatedAt": "2025-07-15T08:12:31.914Z"
+    }
+  ]
+}
